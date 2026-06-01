@@ -145,7 +145,7 @@
       </div>
       <div class="apikey-hint">
         Obtén tu key gratuita en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys.<br>
-        Solo se usa en tu navegador, nunca se guarda ni se envía a otro servidor.
+        Solo se usa en tu navegador. Se guarda localmente para no repetirla. <a href="#" onclick="clearKey()" style="color:var(--red);text-decoration:none">Olvidar key</a>
       </div>
     </div>
 
@@ -259,7 +259,20 @@ Responde SIEMPRE en el siguiente formato JSON sin backticks ni markdown:
 }
 Sé preciso y riguroso. No suavices los problemas reales.`;
 
+// --- API Key persistence ---
+function loadSavedKey() {
+  const saved = localStorage.getItem("ra_apikey");
+  if (saved) { document.getElementById("apiKey").value = saved; }
+}
+window.addEventListener("DOMContentLoaded", loadSavedKey);
+
 // --- API Key toggle ---
+function clearKey() {
+  localStorage.removeItem("ra_apikey");
+  document.getElementById("apiKey").value = "";
+  return false;
+}
+
 function toggleKey() {
   const inp = document.getElementById('apiKey');
   const btn = event.target;
@@ -370,6 +383,7 @@ async function analizar() {
     infoEl.classList.remove('hidden');
   }
 
+  localStorage.setItem("ra_apikey", apiKey);
   btn.disabled = true;
   loading.classList.remove('hidden');
   document.getElementById('panelRight').classList.add('hidden');
@@ -385,7 +399,7 @@ async function analizar() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1500,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: `Analiza este texto académico:\n\n${texto.slice(0, 6000)}` }]
